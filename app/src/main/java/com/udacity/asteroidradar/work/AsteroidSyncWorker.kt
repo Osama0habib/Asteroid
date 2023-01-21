@@ -1,6 +1,11 @@
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.nasaApi.NasaApi
+import com.udacity.asteroidradar.repository.AsteroidRepository
 import retrofit2.HttpException
 
 class AsteroidSyncWorker(
@@ -8,16 +13,21 @@ class AsteroidSyncWorker(
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
 
-    companion object{
-       const val WORK_NAME = "AsteroidSyncWorker"
+    companion object {
+        const val WORK_NAME = "AsteroidSyncWorker"
     }
-    override suspend fun doWork(): Result {
-        try {
-            // Some logic
-        } catch (e: HttpException) {
-            return Result.retry()
-        }
 
-        return Result.success()
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun doWork(): Result {
+        val database = getDatabase(applicationContext)
+        val repository = AsteroidRepository(database)
+
+        return try {
+            println("worker")
+            repository.refreshAsteroids()
+            Result.success()
+        } catch (e: HttpException) {
+            Result.retry()
+        }
     }
 }

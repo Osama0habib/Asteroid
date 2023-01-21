@@ -1,28 +1,85 @@
 package com.udacity.asteroidradar.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.udacity.asteroidradar.database.nasaApi.NasaApi
+import android.app.Application
+import android.os.Build
+import android.view.MenuItem
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.*
+import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.domain.Asteroid
 import com.udacity.asteroidradar.domain.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
+import com.udacity.asteroidradar.R
+import kotlinx.coroutines.async
 
-class MainViewModel : ViewModel() {
+@RequiresApi(Build.VERSION_CODES.O)
+class MainViewModel(app: Application) : ViewModel() {
 
-val _imageResponse = MutableLiveData<PictureOfDay>()
 
-val imageResponse : LiveData<PictureOfDay>
-        get() =_imageResponse
+    private val database = getDatabase(app)
 
+    private val asteroidRepository = AsteroidRepository(database)
+
+
+
+    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    val asteroids : LiveData<List<Asteroid>>
+        get() = _asteroids
+
+    private val _imageOfDay = MutableLiveData<PictureOfDay?>()
+
+    val imageOfDay: LiveData<PictureOfDay?>
+        get() = _imageOfDay
+    private val _navigateToAsteroidDetails = MutableLiveData<Asteroid>()
+    val navigateToAsteroidDetails
+        get() = _navigateToAsteroidDetails
 
     init {
-        getImageResponse()
+
+        getAsteroids(null)
+        getImage()
+//        println("asteroid lenght" + asteroids.value?.size)
     }
 
-    private fun getImageResponse(){
+     fun getImage(){
+         viewModelScope.launch {
+             _imageOfDay.value = asteroidRepository.getImage()
+         }
+    }
+
+    fun getAsteroids(item : Int?){
+        viewModelScope.launch {
+         _asteroids.value =   asteroidRepository.getAsteroids(item)
+        }
+    }
+
+
+
+
+    fun onAsteroidClicked(asteroid: Asteroid) {
+        _navigateToAsteroidDetails.value = asteroid
+    }
+
+
+    fun onAsteroidNavigated() {
+        _navigateToAsteroidDetails.value = null
+    }
+
+     fun filterAsteroids(item: Int){
+          getAsteroids(item)
 
     }
-}
+        class Factory(val app: Application) : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return MainViewModel(app) as T
+                }
+                throw IllegalArgumentException("Unable to construct viewmodel")
+            }
+        }
+    }
+
+
+

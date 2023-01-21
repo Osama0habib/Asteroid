@@ -3,7 +3,7 @@ package com.udacity.asteroidradar.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.udacity.asteroidradar.domain.PictureOfDay
+import java.time.LocalDate
 
 private lateinit var INSTANCE: AsteroidDatabase
 
@@ -23,18 +23,22 @@ fun getDatabase(context: Context): AsteroidDatabase {
 interface AsteroidDao {
 
     @Query("select * from DatabaseAsteroid")
-    fun getAsteroid(): LiveData<List<DatabaseAsteroid>>
+    suspend fun  getAllAsteroid(): List<DatabaseAsteroid>
 
-    @Query("select * from DatabaseAsteroid")
-    fun getPictureOfTheDay() : LiveData<PictureOfDay>
+    @Query("select * from DatabaseAsteroid WHERE closeApproachDate BETWEEN :currentDate AND :lastDate ORDER BY closeApproachDate ASC")
+    suspend fun  get7DayAsteroid(currentDate: String, lastDate: String): List<DatabaseAsteroid>
+    @Query("SELECT * from DatabaseAsteroid WHERE closeApproachDate == :currentDate ORDER BY closeApproachDate ASC")
+    suspend fun  getTodayAsteroid(currentDate: String): List<DatabaseAsteroid>
 
+    @Query("DELETE from DatabaseAsteroid WHERE closeApproachDate < :currentDate")
+    suspend fun clearFromThePast(currentDate: String)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(vararg asteroid: DatabaseAsteroid)
+    fun insertAll( asteroid: List<DatabaseAsteroid>)
 
 
 }
 
-@Database(entities = [AsteroidDatabase::class], version = 1)
+@Database(entities = [DatabaseAsteroid::class], version = 1)
 @Entity
 abstract class AsteroidDatabase : RoomDatabase() {
     abstract val asteroidDao: AsteroidDao

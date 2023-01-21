@@ -1,63 +1,97 @@
 package com.udacity.asteroidradar.main
 
+
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.AsteroidItemBinding
 import com.udacity.asteroidradar.domain.Asteroid
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-//
- class AsteroidsAdapter(viewModel: MainViewModel) : ListAdapter<Asteroid,AsteroidsAdapter.ViewHolder>(
-    DataItem.AsteroidDiffCallback()
-) {
+
+class AsteroidsAdapter(val clickListener: AsteroidListener): ListAdapter<DataItem, RecyclerView.ViewHolder>(AsteroidDiffCallback()) {
 
 
-    class ViewHolder private constructor(val binding: AsteroidItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(viewModel: MainViewModel, item: Asteroid) {
-
-            binding.asteroid = item
-            binding.executePendingBindings()
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ViewHolder -> {
+                val asteroidItem = getItem(position) as DataItem.AsteroidItem
+                holder.binding( clickListener,asteroidItem.asteroid)
+            }
         }
+    }
 
+
+
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
+    fun addItemsAndSubmit(list: List<Asteroid>?) {
+        adapterScope.launch {
+            val items = list?.map {DataItem.AsteroidItem(it)
+
+            }
+            withContext(Dispatchers.Main) {
+                submitList(items)
+            }
+        }
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return  ViewHolder.from(parent)
+        }
+    }
+
+    class ViewHolder private constructor(val binding: AsteroidItemBinding) : RecyclerView.ViewHolder(binding.root){
+
+        fun binding(
+            clickListener: AsteroidListener,
+            item: Asteroid,
+        ) {
+            binding.asteroid = item
+            binding.clickListener = clickListener
+            binding.executePendingBindings()
+
+        }
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = AsteroidItemBinding.inflate(layoutInflater, parent, false)
-
+                val binding : AsteroidItemBinding = DataBindingUtil.inflate(layoutInflater,R.layout.asteroid_item,parent,false)
                 return ViewHolder(binding)
             }
         }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-                val asteroid = getItem(position) as Asteroid
-                holder.binding.asteroid = asteroid
 
-        }
+class AsteroidDiffCallback : DiffUtil.ItemCallback<DataItem>() {
+    override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem.id == newItem.id
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+    override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem == newItem
     }
 }
 
+class AsteroidListener(val clickListener: (asteroid: Asteroid) -> Unit) {
+    fun onClick(asteroid: Asteroid) = clickListener(asteroid)
+}
 
-    sealed class DataItem {
+sealed class DataItem {
     data class AsteroidItem(val asteroid: Asteroid): DataItem() {
-         val id = asteroid.id
+        override val id = asteroid.id
     }
 
-    class AsteroidDiffCallback : DiffUtil.ItemCallback<Asteroid>() {
-        override fun areItemsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean {
-            return oldItem.id == newItem.id
-        }
 
-        override fun areContentsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean {
-            return oldItem == newItem
-        }
-    }
+    abstract val id: Long
 }
+
+
+
+

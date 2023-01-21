@@ -27,7 +27,7 @@ class AsteroidApplication : Application() {
     {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresCharging(true)
+//            .setRequiresCharging(true)
             .build()
 
         val syncWorkRequest =

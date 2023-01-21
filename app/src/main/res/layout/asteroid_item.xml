@@ -6,12 +6,16 @@
     
     <data>
         <variable
+            name="clickListener"
+            type="com.udacity.asteroidradar.main.AsteroidListener"/>
+        <variable
             name="asteroid"
             type="com.udacity.asteroidradar.domain.Asteroid" />
     </data>
     
 <androidx.constraintlayout.widget.ConstraintLayout 
     android:layout_width="match_parent"
+    android:onClick="@{() -> clickListener.onClick(asteroid)}"
     android:layout_height="wrap_content">
 
     <TextView
@@ -20,8 +24,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        android:text="@{asteroid.codename}"
         android:textColor="@color/default_text_color"
-        android:text="TextView"
+        android:textFontWeight="20"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintEnd_toStartOf="@id/imageView"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +41,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:text="TextView"
+        android:textStyle="normal"
+        android:text="@{asteroid.closeApproachDate}"
         android:textColor="@color/default_text_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imageView"
@@ -48,12 +56,13 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        app:statusIcon="@{asteroid.potentiallyHazardous}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@id/textView3"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_status_normal" />
+        tools:srcCompat="@drawable/asteroid_safe" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

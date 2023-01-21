@@ -1,29 +1,37 @@
 package com.udacity.asteroidradar.database
 
+import android.os.Parcelable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.squareup.moshi.JsonClass
 import com.udacity.asteroidradar.domain.Asteroid
+import com.udacity.asteroidradar.domain.PictureOfDay
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.flow.Flow
+
+
 
 @Entity
 data class DatabaseAsteroid constructor(
     @PrimaryKey
     val id: Long,
+    @ColumnInfo(name = "codename")
     val codename: String,
-    val closeApproachDate: String,
-    val absoluteMagnitude: Double,
-    val estimatedDiameter: Double,
-    val relativeVelocity: Double,
-    val distanceFromEarth: Double,
-    val isPotentiallyHazardous: Boolean)
+    @ColumnInfo(name = "closeApproachDate")
+    var closeApproachDate: String,
+    @ColumnInfo(name = "absoluteMagnitude")
+    var absoluteMagnitude: Double,
+    @ColumnInfo(name = "estimatedDiameter")
+    var estimatedDiameter: Double,
+    @ColumnInfo(name = "relativeVelocity")
+    var relativeVelocity: Double,
+    @ColumnInfo(name = "distanceFromEarth")
+    var distanceFromEarth: Double,
+    @ColumnInfo(name = "isPotentiallyHazardous")
+    var isPotentiallyHazardous: Boolean)
 
-//@Entity
-//data class DatabasePictureOfTheDay constructor(
-//    @PrimaryKey
-//    val title : String,
-//    val mediaType : String,
-//    val url : String
-//)
+
 
 fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
     return map {
@@ -40,6 +48,3 @@ fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
     }
 }
 
-//fun DatabasePictureOfTheDay.asDomainModel() : PictureOfDay {
-//    return
-//}

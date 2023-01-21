@@ -14,7 +14,7 @@ if (secretsFile.exists()) {
 
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     buildToolsVersion "29.0.3"
     defaultConfig {
         buildConfigField(
@@ -27,7 +27,7 @@ android {
         )
         applicationId "com.udacity.asteroidradar"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -79,11 +79,11 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    implementation("androidx.room:room-ktx:2.3.0-alpha01")
-    implementation "androidx.room:room-runtime:2.3.0-alpha01"
-    kapt "androidx.room:room-compiler:2.3.0-alpha01"
+    implementation("androidx.room:room-ktx:2.5.0")
+    implementation "androidx.room:room-runtime:2.5.0"
+    kapt "androidx.room:room-compiler:2.5.0"
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.1"
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
     // Glide for images
     implementation "com.github.bumptech.glide:glide:4.8.0"
 
